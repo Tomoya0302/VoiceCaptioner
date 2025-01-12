@@ -10,7 +10,14 @@ import shutil
 import configparser
 import sys
 
-class GenerateSubtitle:
+class MixIn:
+    def remove_all_files(self, dir_name):
+        for file_name in os.listdir(dir_name):
+            file_path = os.path.join(dir_name, file_name)
+            if os.path.isfile(file_path):
+                os.remove(file_path)
+
+class GenerateSubtitle(MixIn):
     def __init__(
             self,
             font_path: str,
@@ -83,8 +90,7 @@ class GenerateSubtitle:
         except subprocess.CalledProcessError as e:
             print(f"Error during concatenation: {e}")
         finally:
-            if os.path.exists(list_file_path):
-                os.remove(list_file_path)
+            self.remove_all_files(self.temp_dir)
 
     def main(self, text, output_file):
         # splited movie
@@ -103,10 +109,8 @@ def resource_path(relative_path):
     return os.path.join(base_path, relative_path)
 
 if __name__ == '__main__':
-    for file_name in os.listdir('output'):
-        file_path = os.path.join('output', file_name)
-        if os.path.isfile(file_path):
-            os.remove(file_path)
+    mixin = MixIn()
+    mixin.remove_all_files('output')
     config_ini = configparser.ConfigParser()
     config_ini.read(resource_path('config/config.ini'), encoding='utf-8')
     subtitle = config_ini['Subtitle']
