@@ -89,8 +89,9 @@ class GenerateSubtitle:
     def main(self, text, output_file):
         # splited movie
         text_list = text.splitlines()
+        digits = len(str(len(text_list)))
         for i, splited_text in enumerate(text_list):
-            self.create_text_video(splited_text, f'{self.temp_dir}/{i}.mp4')
+            self.create_text_video(splited_text, f'{self.temp_dir}/{str(i).zfill(digits)}.mp4')
         self.concatenate_text_video(output_file)
 
 def resource_path(relative_path):
@@ -102,6 +103,10 @@ def resource_path(relative_path):
     return os.path.join(base_path, relative_path)
 
 if __name__ == '__main__':
+    for file_name in os.listdir('output'):
+        file_path = os.path.join('output', file_name)
+        if os.path.isfile(file_path):
+            os.remove(file_path)
     config_ini = configparser.ConfigParser()
     config_ini.read(resource_path('config/config.ini'), encoding='utf-8')
     subtitle = config_ini['Subtitle']
@@ -117,6 +122,6 @@ if __name__ == '__main__':
         all_text = f.read()
     paragraphs = [paragraph.strip() for paragraph in all_text.strip().split("\n\n")]
     for i, text in enumerate(paragraphs):
-        gen.main(text, f"output/page_{i+1}.mp4")
+        gen.main(text, f"output/page_{i}.mp4")
     shutil.rmtree(gen.temp_dir)
     
